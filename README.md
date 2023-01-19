@@ -1,6 +1,6 @@
 # LogRotate
 
-## Installation logrotate – rotar logs de apache con logrotate.
+## 1. Installation logrotate – rotar logs de MongoDB con logrotate.
 
 - La herramienta logrotate ya se encuentra preconfigurada e instalada en la distribución Debian de Linux, de este modo en la mayoría de los casos nos podríamos saltar este paso.
 
@@ -9,7 +9,7 @@ $ apt-get update
 $ apt-get install logrotate
 ```
 
-- Verificamos que disponemos de todos los ficheros y carpetas necesarias para su correcto funcionamiento:
+## 2. Verificamos que disponemos de todos los ficheros y carpetas necesarias para su correcto funcionamiento:
 
 ```directory
 /var/lib/logrotate/
@@ -18,7 +18,7 @@ $ apt-get install logrotate
 /etc/logrotate.conf
 ```
 
-## Configurar logrotate – rotar logs de apache con logrotate.
+## Configurar logrotate – rotar logs de MongoDB con logrotate.
 
 - Para configurar nuestro logrotate actualizaremos el fichero logrotate.conf:
 
@@ -58,71 +58,58 @@ include /etc/logrotate.d
 # los logs del sistema se pueden rotar aquí
 ```
 
-- Crearemos el fichero para rotar logs de apache con logrotate en la distribución Debian de Linux:
+## 3. Crearemos el fichero para rotar logs de mongodb con logrotate en la distribución Debian de Linux
 
 ```console
-vi /etc/logrotate.d/apache2
+# nano /etc/logrotate.d/mongodb
 ```
 
 - Y le añadiremos el siguiente contenido al fichero creado anteriormente:
 
 ```console
-# ubicación de los logs del servidor web apache
-/var/log/apache2/*.log {
-        weekly
-        missingok
-        rotate 52
-        compress
-        delaycompress
-        notifempty
-        create 640 root adm
-        sharedscripts
-        postrotate
-                if [ -f /var/run/apache2.pid ]; then
-                        /etc/init.d/apache2 restart > /dev/null
-                fi
-        endscript
-}
-
-# logs de acceso y errores de los sitios web
-/var/www/logs/*.log {
-        weekly
-        missingok
-        rotate 52
-        compress
-        notifempty
-        create 640 root root
-        sharedscripts
-        postrotate
-                if [ -f /var/run/apache2.pid ]; then
-                        /etc/init.d/apache2 restart > /dev/null
-                fi
-        endscript
-}
+/mongodb/log/mongod.log {
+    daily
+    rotate 15
+    compress
+    dateext
+    notifempty
+    copytruncate
+    missingok
+    }
 ```
 
-- Ejecutar logrotate – rotar logs de apache con logrotate
+- **weekly**. Rota los registros de MongoDB cada semana.
+- **daily**. Rota los registros de MongoDB diario.
+- **rotate 15**. Mantiene hasta 15 copias rotadas.
+- **compress**. Comprime las copias rotadas.
+- **dateext**. Agrega una extensión de fecha al nombre del archivo comprimido, para indicar cuándo fue comprimido.
+- **notifempty** indica que el archivo de registro debe rotar incluso si está vacío
+- **copytruncate**. indica que el archivo de registro debe copiarse y luego vaciado en lugar de moverse.
+- **missingok**. indica que si el archivo de registro no existe, logrotate debe continuar sin errores.
+
+## Ejecutar logrotate – rotar logs de mongodb con logrotate
+
 - Posteriormente comprobaremos manualmente el correcto funcionamiento de logrotate usando el siguiente comando:
 
 ```console
-/usr/sbin/logrotate /etc/logrotate.conf -f
+# sudo logrotate -f /etc/logrotate.d/mongodb
 ```
 
-- Además, logrotate debe ir configurado en un cron para que se ejecute periódicamente, esto podremos hacerlo gracias a la herramienta crontab (ejecuta procesos o scripts a intervalos regulares):
+- Además, logrotate debe ir configurado en un cron para que se ejecute periódicamente, esto podremos hacerlo gracias a la herramienta crontab:
 
 ```console
-crontab -e
+# crontab -e
 ```
 
 - Y agregamos en nuestro archivo crontab el siguiente contenido:
 
 ```conf
-# Rotar logs de apache con logrotate a las 3 am
-0 03 * * * root /usr/sbin/logrotate /etc/logrotate.conf > /dev/null 2>&1
+# Rotar logs de mongodb con logrotate a las 12 am
+0 0 * * * root logrotate -f /etc/logrotate.d/mongodb
 ```
 
 - Finalmente reiniciaremos el proceso cron para que los cambios surtan efecto:
 
 ```console
-/etc/init.d/cron restart
+# cron restart
 ```
