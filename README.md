@@ -98,7 +98,7 @@ include /etc/logrotate.d
 - Además, logrotate debe ir configurado en un cron para que se ejecute periódicamente, esto podremos hacerlo gracias a la herramienta crontab:
 
 ```console
-# crontab -e
+# crontab -e -u ubuntu
 ```
 
 - Y agregamos en nuestro archivo crontab el siguiente contenido:
