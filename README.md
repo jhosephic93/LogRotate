@@ -104,8 +104,8 @@ include /etc/logrotate.d
 - Y agregamos en nuestro archivo crontab el siguiente contenido:
 
 ```conf
-# Rotar logs de mongodb con logrotate a las 12 am
-0 0 * * * root logrotate -f /etc/logrotate.d/mongodb
+# Rotar logs de mongodb con logrotate a las 11:59 pm
+59 23 * * * root logrotate -f /etc/logrotate.d/mongodb
 ```
 
 - Finalmente reiniciaremos el proceso cron para que los cambios surtan efecto:
